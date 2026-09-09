@@ -75,8 +75,34 @@ class _SplashScreenState extends State<SplashScreen>{
   }
 }
 
+class AppInfo{
+  final String nome;
+  final String descricao;
+  final IconData icone;
+
+  const AppInfo({
+    required this.nome,
+    required this.descricao,
+    required this.icone,
+  });
+}
+
+final List<AppInfo> meusApps=[
+  AppInfo(
+    nome:'Calculadora de Gasolina',
+    descricao:'Calcula_litros e custo de uma viagem',
+    icone: Icons.local_gas_station,
+  ),
+
+  AppInfo(
+    nome: 'Calculadora de churrasco',
+    descricao: 'Calcula carne, bebida e carvão',
+    icone: Icons.outdoor_grill,
+  )
+];
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,33 +119,89 @@ class HomeScreen extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFDDF4FF),
-              Color(0xFFA1E5FF),
-            ],
-          ),
-        ),
-        child: Center(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFBEEBFA),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Text(
-              'Em construção...',
-              style: TextStyle(
-                color: Color(0xFF3B98B7),
-                fontWeight: FontWeight.bold,
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              child: const Align(
+                alignment: AlignmentGeometry.bottomLeft,
+                child: Text(
+                  'Central de Apps',
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
               ),
             ),
-          ),
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text('Início'),
+              onTap: () => Navigator.pop(context),
+            ),
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Perfil'),
+              onTap: () => Navigator.pop(context),
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Sair'),
+              onTap: () => Navigator.pop(context),
+            ),
+          ],
         ),
+      ),
+      body: GridView.builder(
+        padding: const EdgeInsets.only(
+          top: 80, // Espaço adicionado no topo para distanciar do título
+          left: 16,
+          right: 16,
+          bottom: 16,
+        ),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 0.95,
+        ),
+        itemCount: meusApps.length,
+        itemBuilder: (context, indice) {
+          final app = meusApps[indice];
+          return Card(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    app.icone,
+                    size: 36,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    app.nome,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    app.descricao,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
