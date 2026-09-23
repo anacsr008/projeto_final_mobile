@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:math';
 
 void main() {
   runApp(const MeuApp());
@@ -195,11 +198,38 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   final void Function(Color) mudarCor;
-
   const HomeScreen({super.key, required this.mudarCor});
+  
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+
+class _HomeScreenState extends State<HomeScreen>{
+  String nomePokemon = '';
+  String? spritePokemon;
+  bool carregando =true;
+
+  @override
+  void initState(){
+    super.initState();
+    buscarPokemon();
+  }
+
+  Future <void> buscarPokemon() async {
+    final id = Random().nextInt(15);
+    final url = Uri.parse('https://pokeapi.co/api/v2/pokemon/$id');
+    final resposta = await http.get(url);
+    final dados = jsonDecode (resposta.body);
+    setState(() {
+      nomePokemon = dados['name'];
+      spritePokemon = dados['sprites']['front_default'];
+      carregando = false;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -241,7 +271,39 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
-      body: GridView.builder(
+      body: Column (
+        children: [ 
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Card(
+              color:Theme.of(context).colorScheme.primaryContainer,
+              child:Padding(
+                padding: const EdgeInsets.all(16),
+                child: carregando
+                ?const Center(child: CircularProgressIndicator())
+                :Row(
+                  children: [
+                    if(spritePokemon != null)
+                    Image.network(spritePokemon!,
+                    width: 56, height: 56,
+                    ),
+                    const SizedBox(width: 12,),
+                    Expanded(
+                      child: Text(
+                        'Pokemon do dia: ${nomePokemon[0]. toUpperCase()}${nomePokemon.substring(1)}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+    Expanded(
+       child:GridView.builder(
         padding: const EdgeInsets.all(16),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
@@ -277,12 +339,15 @@ class HomeScreen extends StatelessWidget {
                     app.descricao,
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 11),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
+                      ),
+                    ],
+                 ),
+               ),
+              );
+            },
+           ),
+         ),
+        ],
       ),
     );
   }
